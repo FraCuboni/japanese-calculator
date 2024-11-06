@@ -147,8 +147,12 @@ export default {
       }
 
       // compongo il numero finale 
-      let result= String(thirdnum) + String(secondnum) + String(firstnum);
-      return console.log('JP generated',result);
+      let result = 
+        (isNaN(thirdnum) ? "" : String(thirdnum)) + 
+        (isNaN(secondnum) ? "" : String(secondnum)) + 
+        (isNaN(firstnum) ? "" : String(firstnum));
+          
+      return result;
     }
   }
 }
@@ -157,6 +161,7 @@ export default {
 <template>
 
   <div class="container">
+    <img src="../public/" alt="">
     <div class="calculator">
 
       <div class="screen">
@@ -175,10 +180,10 @@ export default {
           <div v-else @click="buttonClick('off')" class="value" v-html="isHtml(value) ? value : null"></div>
         </div>
         <div class="button">
-          <div class="value">Git</div>
+          <div class="value"><a href="https://github.com/FraCuboni"><i class="fa-brands fa-github"></i></a></div>
         </div>
         <div class="button">
-          <div class="value">i</div>
+          <div class="value"><i class="fa-solid fa-info"></i></div>
         </div>
       </div>
 
@@ -216,26 +221,23 @@ export default {
         <div v-if="equalpressed" class="circle right"></div>
 
         <div class="graphic-values">
+          <!-- fattori -->
           <div v-if="individualNumbers[0]" class="gv1">{{ individualNumbers[0] }}</div>
           <div v-if="individualNumbers[1]" class="gv2">{{ individualNumbers[1] }}</div>
           <div v-if="individualNumbers[2]" class="gv3">{{ individualNumbers[2] }}</div>
           <div v-if="individualNumbers[3]" class="gv4">{{ individualNumbers[3] }}</div>
+
+          <!-- valori -->
+          <div v-if="individualNumbers[0] && individualNumbers[2]" class="left-intersection">{{ calculateLeftNumber() }}</div>
+          <div v-if="individualNumbers[0] && individualNumbers[3]" class="top-intersection">{{ this.individualNumbers[0] * this.individualNumbers[3] }}</div>
+          <div v-if="individualNumbers[1] && individualNumbers[2]" class="bottom-intersection">{{ this.individualNumbers[1] * this.individualNumbers[2] }}</div>
+          <div v-if="individualNumbers[1] && individualNumbers[3]" class="right-intersection">{{ calculateRightNumber() }}</div>
         </div>
 
       </div>
-      <div class="temporary-box">
-        <ul>
-          <!-- stampo in pagina il valore delle intersezioni -->
-          <li>intersezione sinistra : {{ calculateLeftNumber() }}</li>
-          <li>intersezione alto : {{ this.individualNumbers[0] * this.individualNumbers[3] }}</li>
-          <li>intersezione basso : {{ this.individualNumbers[1] * this.individualNumbers[2] }}</li>
-          <li>intersezione destra : {{ calculateRightNumber() }}</li>
-
-          <!--  -->
-
-        </ul>
+      <div class="explanation-box">
+        <h3>what's happening:</h3>
         
-        <button @click="calculateJP">calcola</button>
       </div>
     </div>
 
@@ -265,6 +267,7 @@ export default {
       padding: 20px;
       border-radius: $border_radius;
       z-index: 300;
+      font-family: "Titillium Web", sans-serif;
 
       .screen{
         height: 40%;
@@ -334,6 +337,11 @@ export default {
             &:hover{
               background-color: rgb(232, 232, 232);
             }
+
+            &:active{
+              box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+              scale: 0.97;
+            }
           }
         }
       }
@@ -341,13 +349,16 @@ export default {
 
     // lato grafico moltiplicazioni
     .graphics-container{
-      background-color: white;
-      width: 400px;
-      aspect-ratio: 1/1.6;
+      background-image: url(../public/AdobeStock_106267755_Preview.jpeg);
+      background-position: bottom right;
+      padding: 30px;
+      width: 450px;
+      aspect-ratio: 1/1.4;
+      font-family: "Caveat", sans-serif;
 
       // flex
       display: flex;
-      justify-content: center;
+      justify-content: space-around;
       align-items: center;
       flex-direction: column;
 
@@ -377,9 +388,11 @@ export default {
             align-items: center;
 
             .number-line{
+              background-image: url(../public/AdobeStock_106267755_Preview.jpeg);
+              background-color: red;
+              background-blend-mode: overlay; /* Permette la fusione del colore di sfondo con l'immagine */
               width: 3%;
               height: 100%;
-              background-color: red;
             }
           }
         }
@@ -443,15 +456,50 @@ export default {
             top: 15%;
             
           }
+
+          .left-intersection,
+          .top-intersection,
+          .bottom-intersection,
+          .right-intersection{
+            position: absolute;
+            height: 110px;
+            width: 110px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            rotate: -45deg;
+            border: 1px solid black;
+            border-radius: 50%;
+
+          }
+
+
+
+          .top-intersection{
+            top: 0;
+            left: 0;
+          }
+          .right-intersection{
+            top: 0;
+            right: 0;
+          }
+          .left-intersection{
+            bottom: 0;
+            left: 0;
+          }
+          .bottom-intersection{
+            bottom: 0;
+            right: 0;
+          }
         }
 
       }
 
-      .temporary-box{
+      .explanation-box{
+        padding-top: 30px;
         z-index: 800;
         width: 100%;
-        aspect-ratio: 1/0.8;
-        background-color: blue;
+        aspect-ratio: 1/0.4;
       }
     }
   }
