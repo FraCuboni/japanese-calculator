@@ -12,11 +12,17 @@ export default {
       sessionValue: '',
       result: '',
 
+      moveDistance: 0,
+
       individualNumbers:[],
       equalpressed : false,
     }
   },
   methods: {
+    moveElement(){
+      this.moveDistance -= 15;
+    },
+
     isHtml(value) {
       // Controlla se il valore contiene tag HTML
       return /<\/?[a-z][\s\S]*>/i.test(value);
@@ -105,7 +111,6 @@ export default {
       this.equalpressed = true;
     },
 
-
     // metodi per calcolo fittizio della moltiplicazione giapponese
     calculateRightNumber(){
       return this.individualNumbers[1] * this.individualNumbers[3]
@@ -118,7 +123,6 @@ export default {
     calculateLeftNumber(){
       return this.individualNumbers[0] * this.individualNumbers[2];
     },
-
     // metodo per la creazione numero finale
     calculateJP(){
       // assegno delle variabili per dei valori più intuitivi
@@ -161,7 +165,7 @@ export default {
 <template>
 
   <div class="container">
-    <img src="../public/" alt="">
+    <img :style="{ transform: 'translateX(' + moveDistance + 'px)' }" class="easteregg" src="../public/catpng.png" alt="">
     <div class="calculator">
 
       <div class="screen">
@@ -177,7 +181,7 @@ export default {
 
         <div  v-for="value in values" class="button">
           <div v-if="!isHtml(value)" @click="buttonClick(value)" class="value">{{value}}</div>
-          <div v-else @click="buttonClick('off')" class="value" v-html="isHtml(value) ? value : null"></div>
+          <div v-else @click="moveElement()" class="value" v-html="isHtml(value) ? value : null"></div>
         </div>
         <div class="button">
           <div class="value"><a href="https://github.com/FraCuboni"><i class="fa-brands fa-github"></i></a></div>
@@ -186,7 +190,6 @@ export default {
           <div class="value"><i class="fa-solid fa-info"></i></div>
         </div>
       </div>
-
     </div>
     
     <div class="graphics-container">
@@ -249,7 +252,6 @@ export default {
 
 <style scoped lang="scss">
 @use './styles/partials/variables.scss' as *;
-
   .container{
     display: flex;
     justify-content: center;
@@ -258,6 +260,18 @@ export default {
     width: 100%;
     background-color: lightblue;
     gap: 5%;
+    position: relative;
+
+    .easteregg {
+      position: absolute;
+      height: 300px;
+      top: 20%;
+      left: 27%;
+    }
+
+    .moving {
+      transform: translateX(-100px); /* Movimento orizzontale */
+    }
 
     // calcolatrice
     .calculator{
