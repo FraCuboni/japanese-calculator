@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.1.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
+    "intersection-observer": "^0.12.2",
     "typeface-roboto": "^1.1.13",
     "vue": "^3.5.12"
   },
