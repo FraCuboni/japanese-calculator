@@ -16,11 +16,17 @@ export default {
 
       individualNumbers:[],
       equalpressed : false,
+
+      isPopupActive : false,
     }
   },
   methods: {
     moveElement(){
       this.moveDistance -= 15;
+    },
+
+    popUpImput(){
+      this.isPopupActive = !this.isPopupActive;
     },
 
     isHtml(value) {
@@ -169,11 +175,6 @@ export default {
     <div class="calculator">
 
       <div class="screen">
-        <div class="graphics">
-
-          <div class="lines-box"></div>
-
-        </div>
         <div class="numbers">{{display}}</div>
       </div>
 
@@ -187,7 +188,7 @@ export default {
           <div class="value"><a href="https://github.com/FraCuboni"><i class="fa-brands fa-github"></i></a></div>
         </div>
         <div class="button">
-          <div class="value"><i class="fa-solid fa-info"></i></div>
+          <div @click="popUpImput()" class="value"><i class="fa-solid fa-info"></i></div>
         </div>
       </div>
     </div>
@@ -230,11 +231,15 @@ export default {
           <div v-if="individualNumbers[2]" class="gv3">{{ individualNumbers[2] }}</div>
           <div v-if="individualNumbers[3]" class="gv4">{{ individualNumbers[3] }}</div>
 
-          <!-- valori -->
-          <div v-if="individualNumbers[0] && individualNumbers[2]" class="left-intersection">{{ calculateLeftNumber() }}</div>
-          <div v-if="individualNumbers[0] && individualNumbers[3]" class="top-intersection">{{ this.individualNumbers[0] * this.individualNumbers[3] }}</div>
-          <div v-if="individualNumbers[1] && individualNumbers[2]" class="bottom-intersection">{{ this.individualNumbers[1] * this.individualNumbers[2] }}</div>
-          <div v-if="individualNumbers[1] && individualNumbers[3]" class="right-intersection">{{ calculateRightNumber() }}</div>
+          <div class="intersection-box">
+
+            <!-- valori -->
+            <div v-if="individualNumbers[0] && individualNumbers[2]" class="left-intersection">{{ calculateLeftNumber() }}</div>
+            <div v-if="individualNumbers[0] && individualNumbers[3]" class="top-intersection">{{ this.individualNumbers[0] * this.individualNumbers[3] }}</div>
+            <div v-if="individualNumbers[1] && individualNumbers[2]" class="bottom-intersection">{{ this.individualNumbers[1] * this.individualNumbers[2] }}</div>
+            <div v-if="individualNumbers[1] && individualNumbers[3]" class="right-intersection">{{ calculateRightNumber() }}</div>
+
+          </div>
         </div>
 
       </div>
@@ -245,6 +250,12 @@ export default {
     </div>
 
 
+  </div>
+
+  <div v-if="isPopupActive" class="popup-bg">
+    <div class="popup">
+      <div @click="popUpImput()" class="div">X</div>
+    </div>
   </div>
 
 </template>
@@ -267,6 +278,7 @@ export default {
       height: 300px;
       top: 20%;
       left: 27%;
+      z-index: 2;
     }
 
     .moving {
@@ -280,7 +292,7 @@ export default {
       aspect-ratio: 1/1.6;
       padding: 20px;
       border-radius: $border_radius;
-      z-index: 300;
+      z-index: 3;
       font-family: "Titillium Web", sans-serif;
 
       .screen{
@@ -377,6 +389,7 @@ export default {
       flex-direction: column;
 
       .graphics-box{
+        margin-top: 35px;
         width: 80%;
         aspect-ratio: 1/1;
         position: relative;
@@ -471,50 +484,109 @@ export default {
             
           }
 
-          .left-intersection,
-          .top-intersection,
-          .bottom-intersection,
-          .right-intersection{
+          .intersection-box{
             position: absolute;
-            height: 110px;
-            width: 110px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            rotate: -45deg;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg); /* Centra l'elemento e ruotalo */
+            width: 90%;
+            height: 90%;
             border: 1px solid black;
-            border-radius: 50%;
-
-          }
-
+            opacity: 0.5;
+            z-index: 4;
 
 
-          .top-intersection{
-            top: 0;
-            left: 0;
-          }
-          .right-intersection{
-            top: 0;
-            right: 0;
-          }
-          .left-intersection{
-            bottom: 0;
-            left: 0;
-          }
-          .bottom-intersection{
-            bottom: 0;
-            right: 0;
+
+            .left-intersection,
+            .top-intersection,
+            .bottom-intersection,
+            .right-intersection{
+              transform: translate(-50%, -50%);
+              position: absolute;
+              height: 110px;
+              width: 110px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border: 1px solid black;
+              border-radius: 50%;
+
+            }
+
+
+            // posizioni iniziali
+            .right-intersection{
+              top: 50%;
+              left: 100%;
+            }
+            .top-intersection{
+              top: 0;
+              left: 50%;
+            }
+            .bottom-intersection{
+              top: 100%;
+              left: 50%;
+            }
+            .left-intersection{
+              top: 50%;
+              left: 0;
+            }
+
+
+            // modified values 4 animation--------------------------------------------------------------------------------------------------
+
+            // scende in basso
+            .right-intersection{
+              top: 150%;
+              left: 100%;
+            }
+
+            // si uniscono in mezzo per formare la loro somma
+            .top-intersection{
+              top: 0;
+              left: 50%;
+            }
+            .bottom-intersection{
+              top: 100%;
+              left: 50%;
+            }
+
+            // resta fermo per ora
+            .left-intersection{
+              top: 50%;
+              left: 0;
+            }
           }
         }
 
       }
 
       .explanation-box{
-        padding-top: 30px;
-        z-index: 800;
+        margin-top: 90px;
+        z-index: 2;
         width: 100%;
         aspect-ratio: 1/0.4;
       }
+    }
+  }
+
+  .popup-bg{
+    top: 0;
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+    z-index: 4;
+
+    // flex
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .popup{
+      height: 85%;
+      aspect-ratio: 1.4/1;
+      background-color: white;
+      border-radius: $border_radius;
     }
   }
 </style>
