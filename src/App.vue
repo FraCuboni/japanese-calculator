@@ -17,6 +17,17 @@ export default {
       individualNumbers:[],
       equalpressed : false,
 
+
+      // unire durante l'animazione i valori top e bottom
+      unifyValues: false,
+
+      intersectionIndividualNumbers:{
+        firstnum : [],
+        secondnum : [],
+        thirdnum : [],
+
+      },
+
       isPopupActive : false,
     }
   },
@@ -59,7 +70,7 @@ export default {
           this.individualNumbers.push(value);
           this.display = this.display.toString() + value; // Concatenazione in stringa
           this.sessionValue += value; // Concatenazione in stringa
-          console.log(this.individualNumbers);
+          console.log('array fattori singolari',this.individualNumbers);
 
         // se premi X
         } else if (value === 'X' && this.sessionValue && !this.equalpressed) {
@@ -78,7 +89,7 @@ export default {
             this.individualNumbers[1] = 0;
           }
 
-          console.log(this.factors);
+          console.log('array fattori in decine',this.factors);
 
         // se premi =
         } else if (value === '=' && this.individualNumbers[2]) {
@@ -94,6 +105,7 @@ export default {
       }
     },
     calculate() {
+      this.calculateRightNumber();
 
       // Se c'è solo un fattore restituisci quel valore
       if (this.factors.length === 1) {
@@ -109,7 +121,9 @@ export default {
       }
       
       // Mostra il risultato
-      this.display = this.result; 
+      this.display = this.result;
+      this.calculateJP();
+      console.log(this.intersectionIndividualNumbers);
       console.log(this.result);
 
       // Resetta i fattori
@@ -119,7 +133,9 @@ export default {
 
     // metodi per calcolo fittizio della moltiplicazione giapponese
     calculateRightNumber(){
-      return this.individualNumbers[1] * this.individualNumbers[3]
+      let value = this.individualNumbers[1] * this.individualNumbers[3];
+      let numberSplit = value.toString().split('').map(Number);
+      this.individualNumbers.firstnum.push(...numberSplit);
     },
     calculateMidNumber(){
       let firstnum = this.individualNumbers[0] * this.individualNumbers[3] ;
@@ -136,6 +152,21 @@ export default {
       let secondnum = this.calculateMidNumber();
       let thirdnum = this.calculateLeftNumber();
       console.log(firstnum, secondnum, thirdnum);
+
+      const numbers = [
+          { num: firstnum, target: this.intersectionIndividualNumbers.firstnum },
+          { num: secondnum, target: this.intersectionIndividualNumbers.secondnum },
+          { num: thirdnum, target: this.intersectionIndividualNumbers.thirdnum }
+      ];
+
+      // Itera su ogni numero e array target
+      numbers.forEach(({ num, target }) => {
+          let splitted = num.toString().split('').map(Number);
+          target.push(...splitted);
+
+          // array con cifre divise delle intersezioni
+          console.log(this.intersectionIndividualNumbers)
+      });
 
       // ottengo decina del primo numero se esistente
       if(firstnum >= 10){
@@ -161,7 +192,6 @@ export default {
         (isNaN(thirdnum) ? "" : String(thirdnum)) + 
         (isNaN(secondnum) ? "" : String(secondnum)) + 
         (isNaN(firstnum) ? "" : String(firstnum));
-          
       return result;
     }
   }
@@ -234,11 +264,11 @@ export default {
           <div class="intersection-box">
 
             <!-- valori -->
-            <div v-if="individualNumbers[0] && individualNumbers[2]" class="left-intersection">{{ calculateLeftNumber() }}</div>
-            <div v-if="individualNumbers[0] && individualNumbers[3]" class="top-intersection">{{ this.individualNumbers[0] * this.individualNumbers[3] }}</div>
-            <div v-if="individualNumbers[1] && individualNumbers[2]" class="bottom-intersection">{{ this.individualNumbers[1] * this.individualNumbers[2] }}</div>
-            <div v-if="individualNumbers[1] && individualNumbers[3]" class="right-intersection">{{ calculateRightNumber() }}</div>
-
+            <div v-if="individualNumbers[1] && individualNumbers[3] && equalpressed" class="right-intersection">{{ this.individualNumbers.firstnum[0]}}{{this.individualNumbers.firstnum[1] }}</div>
+            <div v-if="individualNumbers[0] && individualNumbers[3] && equalpressed" class="top-intersection">{{ this.individualNumbers[0] * this.individualNumbers[3] }}</div>
+            <div v-if="individualNumbers[1] && individualNumbers[2] && equalpressed" class="bottom-intersection">{{ this.individualNumbers[1] * this.individualNumbers[2] }}</div>
+            <div v-if="individualNumbers[0] && individualNumbers[2] && equalpressed" class="left-intersection">{{ calculateLeftNumber() }}</div>
+            <div v-if="individualNumbers[1] && individualNumbers[3] && equalpressed" class="mid-intersection">{{calculateMidNumber()}}</div>
           </div>
         </div>
 
@@ -496,11 +526,15 @@ export default {
             z-index: 4;
 
 
+            // ANIMAZIONI >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
 
             .left-intersection,
             .top-intersection,
             .bottom-intersection,
-            .right-intersection{
+            .right-intersection,
+            .mid-intersection{
               transform: translate(-50%, -50%);
               position: absolute;
               height: 110px;
@@ -522,40 +556,109 @@ export default {
             .top-intersection{
               top: 0;
               left: 50%;
+              animation-name: fromTopToMid;
+              animation-duration: 1500ms; /* Durata di 2 secondi */
+              animation-fill-mode: forwards; /* Mantiene l'ultimo stato dell'animazione */
             }
             .bottom-intersection{
               top: 100%;
               left: 50%;
+              animation-name: fromBotToMid;
+              animation-duration: 1500ms; /* Durata di 2 secondi */
+              animation-fill-mode: forwards; /* Mantiene l'ultimo stato dell'animazione */
             }
             .left-intersection{
               top: 50%;
               left: 0;
             }
-
-
-            // modified values 4 animation--------------------------------------------------------------------------------------------------
-
-            // scende in basso
-            .right-intersection{
-              top: 150%;
-              left: 100%;
-            }
-
-            // si uniscono in mezzo per formare la loro somma
-            .top-intersection{
-              top: 0;
-              left: 50%;
-            }
-            .bottom-intersection{
-              top: 100%;
-              left: 50%;
-            }
-
-            // resta fermo per ora
-            .left-intersection{
+            .mid-intersection{
               top: 50%;
-              left: 0;
+              left: 50%;
+              animation-name: midNumberCreate;
+              animation-duration: 1500ms; /* Durata di 2 secondi */
+              animation-fill-mode: forwards; /* Mantiene l'ultimo stato dell'animazione */
             }
+
+
+            // 1 step--------------------------------------------------------------------------------------------------
+
+            // // scende in basso
+            // .right-intersection{
+            //   top: 150%;
+            //   left: 100%;
+            // }
+
+            // // si unisce a bottom intersection
+            // .top-intersection{
+            //   top: 100%;
+            //   left: 50%;
+            // }
+            // .bottom-intersection{
+            //   top: 100%;
+            //   left: 50%;
+            // }
+
+            // // resta fermo per ora
+            // .left-intersection{
+            //   top: 50%;
+            //   left: 0;
+            // }
+
+
+
+            // 2 step--------------------------------------------------------------------------------------------------
+
+            
+            // sta fermo
+            // .right-intersection{
+            //   top: 150%;
+            //   left: 100%;
+            // }
+
+            // // scendono insieme al livello di right-intersection
+            // .top-intersection{
+            //   top: 150%;
+            //   left: 50%;
+            // }
+            // .bottom-intersection{
+            //   top: 150%;
+            //   left: 50%;
+            // }
+
+            // // sta fermo 
+            // .left-intersection{
+            //   top: 50%;
+            //   left: 0;
+            // }
+
+
+            // 3 step--------------------------------------------------------------------------------------------------
+
+            
+            // sta fermo
+            // .right-intersection{
+            //   top: 150%;
+            //   left: 100%;
+            // }
+
+            // // sta fermo
+            // .top-intersection{
+            //   top: 150%;
+            //   left: 50%;
+            // }
+            // .bottom-intersection{
+            //   top: 150%;
+            //   left: 50%;
+            // }
+
+            // // scende anche lui
+            // .left-intersection{
+            //   top: 150%;
+            //   left: 0;
+            // }
+
+            // le unità passano da sinistra a destra
+
           }
         }
 
@@ -590,3 +693,9 @@ export default {
     }
   }
 </style>
+
+<!-- ora un bel flusso di pensieri che non fa mai male
+
+da posizione E N,S e W devono prima sommarsi N,S dunque da due numeri singoli uno deve scomparire e lasciare spazio a calculateMidNumber
+
+direi di iniziare da questo -->
